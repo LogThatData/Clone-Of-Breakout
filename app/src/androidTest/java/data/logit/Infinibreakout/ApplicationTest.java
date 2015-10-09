@@ -1,4 +1,4 @@
-package data.logit.breakout;
+package data.logit.Infinibreakout;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

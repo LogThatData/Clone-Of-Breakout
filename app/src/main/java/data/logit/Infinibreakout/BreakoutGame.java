@@ -1,4 +1,4 @@
-package data.logit.breakout;
+package data.logit.Infinibreakout;
 
 import android.app.Activity;
 import android.content.Context;
@@ -52,10 +52,10 @@ public class BreakoutGame extends Activity {
         int screenY;
 
         Paddle paddle;
-        Ball ball;
+        Ball[] balls = new Ball[200];
         Brick[] bricks = new Brick[200];
         int numBricks = 0;
-
+        int numBalls = 0;
 
         Random generator = new Random();
         int brickColorR = generator.nextInt(255);
@@ -92,7 +92,8 @@ public class BreakoutGame extends Activity {
             screenY = size.y;
 
             paddle = new Paddle(screenX, screenY);
-            ball = new Ball(screenX, screenY);
+            balls[1] = new Ball(screenX, screenY);
+            numBalls = 1;
             soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
 
             try{
@@ -127,10 +128,12 @@ public class BreakoutGame extends Activity {
             score = 0;
             lives = 3;
 
-            ball.reset(screenX, screenY);
-            ball.setSpeed();
+            balls[1].reset(screenX, screenY);
+            balls[1].setSpeed();
+            numBalls = 1;
             paddle.setSpeed();
             paddle.setLength();
+            paddle.reset(screenX, screenY);
             int brickWidth = screenX / 8;
             int brickHeight = screenY / 10;
             numBricks = 0;
@@ -143,12 +146,19 @@ public class BreakoutGame extends Activity {
         }
 
         public void createBricksAndContinue() {
+            if(numBalls <= 4) {
+                paddle.setBigger();
+                paddle.setFaster();
+            } else if (numBalls <= 7){
+                paddle.setFaster();
+            }
+            balls[numBalls].reset(screenX, screenY);
+            numBalls++;
+            score = 0;
+            lives += 4;
 
-            lives = 3;
-            ball.reset(screenX, screenY);
-            ball.setFaster();
-            paddle.setFasterAndBigger();
-            paddle = new Paddle(screenX, screenY);
+            paddle.reset(screenX, screenY);
+            balls[numBalls] = new Ball(screenX + 2, screenY);
             int brickWidth = screenX / 8;
             int brickHeight = screenY / 10;
             numBricks = 0;
@@ -181,64 +191,70 @@ public class BreakoutGame extends Activity {
         }
 
         public void update() {
-            //movement, collsion detection, etc.
+            //movement, collision detection, etc.
             paddle.update(fps);
-
             for(int i = 0; i < numBricks; i++){
                 if(bricks[i].getVisibility()){
-                    if(RectF.intersects(bricks[i].getRect(), ball.getRect())) {
+                    for(int j = 1; j <= numBalls; j++){
+                    if(RectF.intersects(bricks[i].getRect(), balls[j].getRect())) {
                         bricks[i].setInvisible();
-                        ball.reverseYVelocity();
+                        balls[j].reverseYVelocity();
                         score += 10;
                         soundPool.play(explodeID, 1, 1, 0, 0, 1);
                     }
+
+                    }
+                }
+            }
+            for(int i = 1; i <= numBalls; i++) {
+                if (RectF.intersects(paddle.getRect(), balls[i].getRect())) {
+                    if (paddle.paddleMoving == paddle.LEFT) {
+                        balls[i].xVelocity = -(Math.abs(balls[i].xVelocity + new Random().nextInt(30)));
+                    } else if (paddle.paddleMoving == paddle.RIGHT) {
+                        balls[i].xVelocity = Math.abs(balls[i].xVelocity + new Random().nextInt(30));
+                    }
+                    balls[i].reverseYVelocity();
+                    balls[i].clearObstacleY(paddle.getRect().top - 2);
+                    soundPool.play(beep1ID, 1, 1, 0, 0, 1);
+                }
+            }
+            for(int i = 1; i <= numBalls; i++) {
+                if (balls[i].getRect().bottom > screenY) {
+                    balls[i].reverseYVelocity();
+                    balls[i].clearObstacleY(screenY - 2);
+
+                    lives--;
+                    soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
+
+                }
+                if (balls[i].getRect().top < 0) {
+                    balls[i].reverseYVelocity();
+                    balls[i].clearObstacleY(12);
+                    soundPool.play(beep2ID, 1, 1, 0, 0, 1);
+                }
+
+                if (balls[i].getRect().left < 0) {
+                    balls[i].reverseXVelocity();
+                    balls[i].clearObstacleX(2);
+                    soundPool.play(beep3ID, 1, 1, 0, 0, 1);
+                }
+
+                if (balls[i].getRect().right > screenX - 10) {
+                    balls[i].reverseXVelocity();
+                    balls[i].clearObstacleX(screenX - 22);
+                    soundPool.play(beep3ID, 1, 1, 0, 0, 1);
                 }
             }
 
-            if(RectF.intersects(paddle.getRect(), ball.getRect())) {
-                if (paddle.paddleMoving == paddle.LEFT) {
-                    ball.xVelocity = -(Math.abs(ball.xVelocity));
-                } else if (paddle.paddleMoving == paddle.RIGHT) {
-                    ball.xVelocity = Math.abs(ball.xVelocity);
-                }
-                ball.reverseYVelocity();
-                ball.clearObstacleY(paddle.getRect().top - 2);
-                soundPool.play(beep1ID, 1, 1, 0, 0, 1);
-            }
 
-            if(ball.getRect().bottom > screenY) {
-                ball.reverseYVelocity();
-                ball.clearObstacleY(screenY - 2);
-
-                lives--;
-                soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
-
-            }
-            if(ball.getRect().top < 0) {
-                ball.reverseYVelocity();
-                ball.clearObstacleY(12);
-                soundPool.play(beep2ID, 1, 1, 0, 0, 1);
-            }
-
-            if(ball.getRect().left < 0) {
-                ball.reverseXVelocity();
-                ball.clearObstacleX(2);
-                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
-            }
-
-            if(ball.getRect().right > screenX - 10) {
-                ball.reverseXVelocity();
-                ball.clearObstacleX(screenX - 22);
-                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
-            }
-
-            if(score == numBricks * 10){
+            if(score == numBricks * 10 && numBricks != 0){
                 paused = true;
-                createBricksAndRestart();
+                createBricksAndContinue();
             }
 
-
-            ball.update(fps);
+            for(int i = 1; i <= numBalls; i++) {
+                balls[i].update(fps);
+            }
         }
 
         public void drawFrame() {
@@ -251,8 +267,10 @@ public class BreakoutGame extends Activity {
 
                 //draw the paddle
                 canvas.drawRect(paddle.getRect(), paint);
-                //the ball
-                canvas.drawRect(ball.getRect(), paint);
+                //the balls
+                for(int i = 1; i <= numBalls; i++) {
+                    canvas.drawRect(balls[i].getRect(), paint);
+                }
                 //bricks
                 for(int i = 0; i < numBricks; i++){
                     if(bricks[i].getVisibility()){
@@ -316,7 +334,7 @@ public class BreakoutGame extends Activity {
                     }
 
                     if(lives == 0) {
-                        createBricksAndContinue();
+                        createBricksAndRestart();
                     }
 
                     break;

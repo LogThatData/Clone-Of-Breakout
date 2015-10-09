@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="data.logit.breakout" >
+    package="data.logit.Infinibreakout" >
 
     <application
         android:allowBackup="true"
@@ -8,7 +8,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".BreakoutGame"
+            android:name="data.logit.Infinibreakout.BreakoutGame"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:screenOrientation="landscape"
             android:label="@string/app_name" >

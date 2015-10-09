@@ -1,4 +1,4 @@
-package data.logit.breakout;
+package data.logit.Infinibreakout;
 
 import android.graphics.RectF;
 /**
@@ -28,23 +28,29 @@ public class Paddle {
 
         height = 20;
 
-        x = screenX / 2;
+        x = screenX / 2 - length / 2;
         y = screenY - 30;
 
-        rect = new RectF(x, y, x + length, y + height);
+        rect = new RectF(x, y, x + length / 2, y + height);
 
         paddleSpeed = 350;
+    }
+
+    public void reset(int screenX, int screenY) {
+            rect.left = screenX / 2;
+            rect.top = screenY - 30;
+            rect.right = screenX / 2 + length;
+            rect.bottom = screenY - 10;
+
     }
 
     public void setLength(){ length = 130; }
-
     public void setSpeed() {
         paddleSpeed = 350;
     }
-    public RectF getRect(){
+    public RectF getRect() {
         return rect;
     }
-
     public void setMovementState(int state) {
         paddleMoving = state;
     }
@@ -60,10 +66,17 @@ public class Paddle {
         rect.left = x;
         rect.right = x + length;
     }
-    public void setFasterAndBigger() {
+    public void setBigger() {
+        length *= 2;
+    }
+    public void setFaster() {
         paddleSpeed *= 1.5;
-        length *= 1.5;
 
+    }
+
+
+    public void setSmaller() {
+        length /= 2;
     }
 
 

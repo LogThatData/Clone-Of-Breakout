@@ -1,7 +1,7 @@
-package data.logit.breakout;
+package data.logit.Infinibreakout;
 
 import android.graphics.RectF;
-import java.util.Random;
+
 /**
  * Created by AdminProgram on 8/10/2015.
  */
@@ -17,7 +17,7 @@ public class Ball {
         setSpeed();
 
 
-        rect = new RectF();
+        rect = new RectF(screenX, screenY, screenX + ballWidth, screenY + ballHeight);
     }
     public void setSpeed(){
         xVelocity = 200;
@@ -43,15 +43,6 @@ public class Ball {
         xVelocity = -xVelocity;
     }
 
-    public void setRandomXVelocity(){
-        Random generator = new Random();
-        int answer = generator.nextInt(2);
-
-        if(answer == 0) {
-            reverseXVelocity();
-        }
-    }
-
     public void clearObstacleY(float y) {
         rect.bottom = y;
         rect.top = y - ballHeight;
@@ -66,7 +57,7 @@ public class Ball {
         rect.left = x / 2;
         rect.top = y - 20;
         rect.right = x / 2 + ballWidth;
-        rect.bottom = y - 2 - ballHeight;
+        rect.bottom = y - 20 + ballHeight;
     }
 
     public void setFaster() {
